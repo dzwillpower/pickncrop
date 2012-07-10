@@ -1,0 +1,10 @@
+<resources>
+
+    <string name="app_name">PickNCrop</string>
+    <string name="menu_settings">About</string>
+    <string name="info">For more information visit:\nhttps://github.com/dtitov/pickncrop</string>
+    <string name="title_activity_main">PickNCrop</string>
+    <string name="pick">Pick</string>
+    <string name="crop">Crop</string>
+
+</resources>
