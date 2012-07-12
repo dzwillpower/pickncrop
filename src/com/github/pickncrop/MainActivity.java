@@ -8,6 +8,7 @@ import java.util.UUID;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Matrix;
 import android.net.Uri;
@@ -22,6 +23,7 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewManager;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.ZoomButtonsController;
@@ -30,6 +32,7 @@ import android.widget.ZoomButtonsController.OnZoomListener;
 public class MainActivity extends Activity {
 	private ImageView imageView;
 	private ViewManager viewManager;
+	private final int outputSize = 100;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -39,17 +42,25 @@ public class MainActivity extends Activity {
 		int width = display.getWidth();
 		int height = display.getHeight();
 		int size = width < height ? width : height;
+
 		imageView = (ImageView) findViewById(R.id.imageViewCrop);
 		imageView.getLayoutParams().width = size - 25;
 		imageView.getLayoutParams().height = size - 25;
 		viewManager = (ViewManager) imageView.getParent();
+
 		if (getPackageManager().hasSystemFeature(
 				PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH)) {
 			createZoomControls();
 		}
+
 		imageView.setOnTouchListener(new OnTouchListener() {
 			float initX;
 			float initY;
+			float scale = 1.0f;
+			float initDistance;
+			float currentDistance;
+			boolean isMultitouch;
+			Matrix matrix = new Matrix();
 
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
@@ -58,11 +69,32 @@ public class MainActivity extends Activity {
 					initX = event.getX();
 					initY = event.getY();
 					break;
+				case MotionEvent.ACTION_POINTER_DOWN:
+					isMultitouch = true;
+					initDistance = (float) Math.sqrt(Math.pow(event.getX(0)
+							- event.getX(1), 2)
+							+ Math.pow(event.getY(0) - event.getY(1), 2));
+					break;
 				case MotionEvent.ACTION_MOVE:
-					imageView.scrollBy((int) (initX - event.getX()),
-							(int) (initY - event.getY()));
-					initX = event.getX();
-					initY = event.getY();
+					if (isMultitouch) {
+						currentDistance = (float) Math.sqrt(Math.pow(
+								event.getX(0) - event.getX(1), 2)
+								+ Math.pow(event.getY(0) - event.getY(1), 2));
+						scale = currentDistance / initDistance;
+						matrix.setScale(scale, scale);
+						imageView.setImageMatrix(matrix);
+					} else {
+						imageView.scrollBy((int) (initX - event.getX()),
+								(int) (initY - event.getY()));
+						initX = event.getX();
+						initY = event.getY();
+					}
+					break;
+				case MotionEvent.ACTION_UP:
+					isMultitouch = false;
+					break;
+				case MotionEvent.ACTION_POINTER_UP:
+					isMultitouch = false;
 					break;
 				}
 				return true;
@@ -77,10 +109,10 @@ public class MainActivity extends Activity {
 		zoomButtonsController.setAutoDismissed(false);
 		zoomButtonsController.setOnZoomListener(new OnZoomListener() {
 			float scale = 1.0f;
+			Matrix matrix = new Matrix();
 
 			@Override
 			public void onZoom(boolean zoomIn) {
-				Matrix matrix = new Matrix();
 				if (zoomIn) {
 					scale += 0.05f;
 					matrix.setScale(scale, scale);
@@ -130,17 +162,21 @@ public class MainActivity extends Activity {
 		case RESULT_OK:
 			Uri targetUri = data.getData();
 			imageView.setImageURI(targetUri);
+			imageView.setScaleType(ScaleType.MATRIX);
 			break;
 		}
 	}
 
 	public void buttonCropClick(View view) throws IOException {
-		imageView.buildDrawingCache();
+		imageView.setDrawingCacheEnabled(true);
+		imageView.buildDrawingCache(true);
 		File imageFile = new File(Environment.getExternalStorageDirectory(),
 				"Pictures/" + UUID.randomUUID().toString() + ".jpg");
 		FileOutputStream fileOutputStream = new FileOutputStream(imageFile);
-		imageView.getDrawingCache().compress(CompressFormat.JPEG, 100,
+		Bitmap.createScaledBitmap(imageView.getDrawingCache(true), outputSize,
+				outputSize, false).compress(CompressFormat.JPEG, 100,
 				fileOutputStream);
 		fileOutputStream.close();
+		imageView.setDrawingCacheEnabled(false);
 	}
 }

@@ -23,7 +23,7 @@
         android:layout_below="@+id/buttonPick"
         android:layout_centerHorizontal="true"
         android:contentDescription="@string/app_name"
-        android:scaleType="matrix"
+        android:scaleType="center"
         android:src="@android:drawable/ic_menu_crop" />
 
     <Button
