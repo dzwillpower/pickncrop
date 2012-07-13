@@ -67,7 +67,7 @@ public class MainActivity extends Activity {
 		imageView.getLayoutParams().height = size;
 		viewManager = (ViewManager) imageView.getParent();
 
-		if (!getPackageManager().hasSystemFeature(
+		if (getPackageManager().hasSystemFeature(
 				PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH)) {
 			createZoomControls();
 		}
@@ -75,6 +75,8 @@ public class MainActivity extends Activity {
 		imageView.setOnTouchListener(new OnTouchListener() {
 			float initX;
 			float initY;
+			float midX;
+			float midY;
 			float scale;
 			float initDistance;
 			float currentDistance;
@@ -100,7 +102,9 @@ public class MainActivity extends Activity {
 								- event.getX(1), 2)
 								+ Math.pow(initY - event.getY(1), 2));
 						scale = 1 + 0.001f * (currentDistance - initDistance);
-						matrix.postScale(scale, scale, 0.5f * size, 0.5f * size);
+						midX = 0.5f * (initX + event.getX(1));
+						midY = 0.5f * (initY + event.getY(1));
+						matrix.postScale(scale, scale, midX, midY);
 						imageView.setImageMatrix(matrix);
 						imageView.invalidate();
 					} else {
