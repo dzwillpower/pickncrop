@@ -99,7 +99,7 @@ public class MainActivity extends Activity {
 						currentDistance = (float) Math.sqrt(Math.pow(initX
 								- event.getX(1), 2)
 								+ Math.pow(initY - event.getY(1), 2));
-						scale = currentDistance / initDistance;
+						scale = 1 + 0.001f * (currentDistance - initDistance);
 						matrix.postScale(scale, scale, 0.5f * size, 0.5f * size);
 						imageView.setImageMatrix(matrix);
 						imageView.invalidate();
