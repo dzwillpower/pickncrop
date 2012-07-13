@@ -48,6 +48,8 @@ import android.widget.ZoomButtonsController.OnZoomListener;
 public class MainActivity extends Activity {
 	private ImageView imageView;
 	private ViewManager viewManager;
+	private Matrix matrix;
+	private int size;
 	private final int outputSize = 100;
 
 	@Override
@@ -57,14 +59,15 @@ public class MainActivity extends Activity {
 		Display display = getWindowManager().getDefaultDisplay();
 		int width = display.getWidth();
 		int height = display.getHeight();
-		int size = width < height ? width : height;
+		size = width < height ? width : height;
+		size -= 50;
 
 		imageView = (ImageView) findViewById(R.id.imageViewCrop);
-		imageView.getLayoutParams().width = size - 25;
-		imageView.getLayoutParams().height = size - 25;
+		imageView.getLayoutParams().width = size;
+		imageView.getLayoutParams().height = size;
 		viewManager = (ViewManager) imageView.getParent();
 
-		if (getPackageManager().hasSystemFeature(
+		if (!getPackageManager().hasSystemFeature(
 				PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH)) {
 			createZoomControls();
 		}
@@ -72,33 +75,34 @@ public class MainActivity extends Activity {
 		imageView.setOnTouchListener(new OnTouchListener() {
 			float initX;
 			float initY;
-			float scale = 1.0f;
+			float scale;
 			float initDistance;
 			float currentDistance;
-			boolean isMultitouch;
-			Matrix matrix = new Matrix();
+			boolean isMultitouch = false;
 
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-				switch (event.getAction()) {
+				switch (event.getAction() & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_DOWN:
 					initX = event.getX();
 					initY = event.getY();
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
 					isMultitouch = true;
-					initDistance = (float) Math.sqrt(Math.pow(event.getX(0)
-							- event.getX(1), 2)
-							+ Math.pow(event.getY(0) - event.getY(1), 2));
+					initDistance = (float) Math.sqrt(Math.pow(
+							initX - event.getX(1), 2)
+							+ Math.pow(initY - event.getY(1), 2));
 					break;
 				case MotionEvent.ACTION_MOVE:
 					if (isMultitouch) {
-						currentDistance = (float) Math.sqrt(Math.pow(
-								event.getX(0) - event.getX(1), 2)
-								+ Math.pow(event.getY(0) - event.getY(1), 2));
+						matrix = imageView.getImageMatrix();
+						currentDistance = (float) Math.sqrt(Math.pow(initX
+								- event.getX(1), 2)
+								+ Math.pow(initY - event.getY(1), 2));
 						scale = currentDistance / initDistance;
-						matrix.setScale(scale, scale);
+						matrix.postScale(scale, scale, 0.5f * size, 0.5f * size);
 						imageView.setImageMatrix(matrix);
+						imageView.invalidate();
 					} else {
 						imageView.scrollBy((int) (initX - event.getX()),
 								(int) (initY - event.getY()));
@@ -124,20 +128,18 @@ public class MainActivity extends Activity {
 		zoomButtonsController.setVisible(true);
 		zoomButtonsController.setAutoDismissed(false);
 		zoomButtonsController.setOnZoomListener(new OnZoomListener() {
-			float scale = 1.0f;
-			Matrix matrix = new Matrix();
 
 			@Override
 			public void onZoom(boolean zoomIn) {
+				matrix = imageView.getImageMatrix();
 				if (zoomIn) {
-					scale += 0.05f;
-					matrix.setScale(scale, scale);
+					matrix.postScale(1.05f, 1.05f, 0.5f * size, 0.5f * size);
 					imageView.setImageMatrix(matrix);
 				} else {
-					scale -= 0.05f;
-					matrix.setScale(scale, scale);
+					matrix.postScale(0.95f, 0.95f, 0.5f * size, 0.5f * size);
 					imageView.setImageMatrix(matrix);
 				}
+				imageView.invalidate();
 			}
 
 			@Override
@@ -167,7 +169,7 @@ public class MainActivity extends Activity {
 	public void buttonPickClick(View view) {
 		Intent intent = new Intent(Intent.ACTION_PICK,
 				android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-		startActivityForResult(intent, 123);
+		startActivityForResult(intent, 0);
 	}
 
 	@Override
@@ -177,6 +179,8 @@ public class MainActivity extends Activity {
 		switch (resultCode) {
 		case RESULT_OK:
 			Uri targetUri = data.getData();
+			imageView.setScaleType(ScaleType.CENTER_INSIDE);
+			imageView.scrollTo(0, 0);
 			imageView.setImageURI(targetUri);
 			imageView.setScaleType(ScaleType.MATRIX);
 			break;
