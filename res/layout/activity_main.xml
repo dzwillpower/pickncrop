@@ -18,40 +18,48 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
-    <Button
-        android:id="@+id/buttonPick"
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/linearLayout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
-        android:onClick="buttonPickClick"
-        android:text="@string/pick" />
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/buttonPick"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="1"
+            android:onClick="buttonPickClick"
+            android:text="@string/pick" />
+
+        <Button
+            android:id="@+id/buttonCrop"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="1"
+            android:onClick="buttonCropClick"
+            android:text="@string/crop" />
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/imageViewCrop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/buttonPick"
+        android:layout_below="@+id/linearLayout"
         android:layout_centerHorizontal="true"
         android:contentDescription="@string/app_name"
-        android:scaleType="center"
+        android:scaleType="centerInside"
         android:src="@android:drawable/ic_menu_crop" />
-
-    <Button
-        android:id="@+id/buttonCrop"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
-        android:onClick="buttonCropClick"
-        android:text="@string/crop" />
 
 </RelativeLayout>
