@@ -1,6 +1,6 @@
 Except as otherwise noted, this library is licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.html)
 
-pickncrop
+Description:
 =========
 
-Android app for picking and cropping images.
+The source code of this project can be used to simplify the development of programs that require a the functionality of selection, scaling (pinch or standard zoom) and cropping images.
