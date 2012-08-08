@@ -82,7 +82,6 @@ public class MainActivity extends Activity {
 			float currentDistance;
 			boolean isMultitouch = false;
 
-			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				switch (event.getAction() & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_DOWN:
@@ -133,7 +132,6 @@ public class MainActivity extends Activity {
 		zoomButtonsController.setAutoDismissed(false);
 		zoomButtonsController.setOnZoomListener(new OnZoomListener() {
 
-			@Override
 			public void onZoom(boolean zoomIn) {
 				matrix = imageView.getImageMatrix();
 				if (zoomIn) {
@@ -146,7 +144,6 @@ public class MainActivity extends Activity {
 				imageView.invalidate();
 			}
 
-			@Override
 			public void onVisibilityChanged(boolean visible) {
 			}
 		});
